@@ -6,10 +6,9 @@ import com.coderaah.medtrack.medication.service.MedicationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/medications")
 public class MedicationController {
@@ -23,6 +22,28 @@ public class MedicationController {
     public ResponseEntity<MedicationResponse> createMedication(@Valid @RequestBody MedicationRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(medicationService.createMedication(request));
     }
+
+    @GetMapping
+    public ResponseEntity<List<MedicationResponse>> getAllMedications(){
+        return ResponseEntity.ok(medicationService.getAllMedications());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MedicationResponse>getMedicationById(@PathVariable Long id){
+        return ResponseEntity.ok(medicationService.getMedicationById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MedicationResponse> updateMedication(@PathVariable Long id, @Valid @RequestBody MedicationRequest request){
+        return ResponseEntity.ok(medicationService.updateMedication(id,request));
+    }
+
+
+
+
+
+
+
 
 
 
