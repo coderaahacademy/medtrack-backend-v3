@@ -5,11 +5,10 @@ import com.coderaah.medtrack.identity.repository.PersonRepository;
 import com.coderaah.medtrack.patient.domain.PatientProfile;
 import com.coderaah.medtrack.patient.dto.PatientRequest;
 import com.coderaah.medtrack.patient.dto.PatientResponse;
+import com.coderaah.medtrack.patient.exception.PatientNotFoundException;
 import com.coderaah.medtrack.patient.repository.PatientProfileRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,15 +26,9 @@ public class PatientService {
 
     @Transactional
     public PatientResponse createPatient(PatientRequest request) {
-        Person person = personRepository
-                .findByFirstNameAndLastNameAndBirthDate(request.firstName(), request.lastName(), request.birthDate())
-                .orElseGet(() -> personRepository.save(
-                        new Person(request.firstName(), request.lastName(), request.birthDate(), request.phone())
-                ));
-
-        if (patientRepository.findByPersonId(person.getId()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Patient profile already exists for this person");
-        }
+        Person person = personRepository.save(
+                new Person(request.firstName(), request.lastName(), request.birthDate(), request.phone())
+        );
 
         String mrn = "MRN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         PatientProfile profile = new PatientProfile(
@@ -53,7 +46,7 @@ public class PatientService {
     @Transactional(readOnly = true)
     public PatientResponse getPatientById(Long id) {
         PatientProfile profile = patientRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found"));
+                .orElseThrow(() -> new PatientNotFoundException(id));
         return toResponse(profile);
     }
 
@@ -67,7 +60,7 @@ public class PatientService {
     @Transactional
     public PatientResponse updatePatient(Long id, PatientRequest request) {
         PatientProfile profile = patientRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found"));
+                .orElseThrow(() -> new PatientNotFoundException(id));
 
         Person person = profile.getPerson();
         person.setFirstName(request.firstName());
