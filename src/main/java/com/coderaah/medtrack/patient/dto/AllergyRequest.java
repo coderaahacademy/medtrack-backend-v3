@@ -3,6 +3,7 @@ package com.coderaah.medtrack.patient.dto;
 import com.coderaah.medtrack.patient.domain.AllergySeverity;
 import com.coderaah.medtrack.patient.domain.AllergyStatus;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record AllergyRequest(
@@ -15,5 +16,6 @@ public record AllergyRequest(
 
         AllergySeverity severity,
 
+        @NotNull(message = "Status is required")
         AllergyStatus status) {
 }
